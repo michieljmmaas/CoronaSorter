@@ -22,10 +22,13 @@ def getDFFromFile(filename):
     return pd.read_csv(filename, sep=";", index_col=0)
 
 
-def getDifferenceFromYesterday(files):
+def getDifferenceFromNumerOfDaysBack(files, number_of_days_back):
+    previous_index = 0
+    if number_of_days_back != -1:
+        previous_index = -(1 + number_of_days_back)
     today_file = files[-1]
     todayDF = getDFFromFile(today_file)
-    yesterday_file = files[-2]
+    yesterday_file = files[previous_index]
     yesterdayDF = getDFFromFile(yesterday_file)
     return todayDF.subtract(yesterdayDF)
 
@@ -117,7 +120,7 @@ class CoronaGraph:
         denisty_fig = denisty_fig.update_traces(marker_color='blue')
         denisty_trace = denisty_fig['data'][0]
 
-        DifferenceDf = getDifferenceFromYesterday(self.files)
+        DifferenceDf = getDifferenceFromNumerOfDaysBack(self.files, -1)
 
         DifferenceTotalDf, difference_total_index_county, differrence_total_county = getTop10AndIndex(DifferenceDf, top_10, TOTAL_INDEX, COUNTY_NAME)
         total_change_fig = px.bar(DifferenceTotalDf, x=DifferenceTotalDf.index, y=TOTAL_INDEX)
@@ -125,11 +128,10 @@ class CoronaGraph:
         total_change_trace = total_change_fig['data'][0]
 
         DifferenceDensityDf, difference_density_index_county, differrence_density_county = getTop10AndIndex(DifferenceDf, top_10, DENSITY_INDEX, COUNTY_NAME)
-        density_change_fig = px.bar(DifferenceDensityDf, x=DifferenceTotalDf.index, y=DENSITY_INDEX)
+        density_change_fig = px.bar(DifferenceDensityDf, x=DifferenceDensityDf.index, y=DENSITY_INDEX)
         density_change_fig = density_change_fig.update_traces(marker_color='yellow')
         density_change_trace = density_change_fig['data'][0]
 
-        print("Total gemeentes:" + str(count))
         printInfo("Total", COUNTY_NAME, total_value_county, total_index_county, count)
         printInfo("Density", COUNTY_NAME, density_value_county, density_index_county, count)
         printInfo("Difference Total", COUNTY_NAME, differrence_total_county, difference_total_index_county, count)
@@ -158,10 +160,6 @@ class CoronaGraph:
         fig.add_trace(total_change_indexed_trace, row=3, col=2)
 
         fig.show()
-
-        maxindex = DifferenceDf.loc[DifferenceDf[TOTAL_INDEX].idxmax()]
-        print(maxindex)
-
         plt.tight_layout()  # plt.show()
 
         # TODO check maken op grootste verschil  # TODO get change of index
