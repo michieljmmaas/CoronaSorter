@@ -10,6 +10,7 @@ import plotly.io as pio
 import cufflinks as cf
 import plotly.offline as py
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 
 def getIndexPointOfOrder(total, index):
@@ -95,9 +96,7 @@ class CoronaGraph:
 
     def DrawMatplot(self):
         cf.go_offline()
-        # chart_studio.tools.set_config_file(world_readable=False, sharing='private')
 
-        sns.set_context('paper')
         pd.options.mode.chained_assignment = None
         TOTAL_INDEX = "Aantal"
         INDEXED_SUM = "indexed_sum"
@@ -133,7 +132,7 @@ class CoronaGraph:
         # ax = fig.add_subplot(224)
         DifferenceDensityDf, difference_density_index_county, differrence_density_county = getTop10AndIndex(DifferenceDf, top_10, DENSITY_INDEX, COUNTY_NAME)
         ax = DifferenceDensityDf.plot(title="Difference in density", kind="bar", y=DENSITY_INDEX, color='yellow')
-        px.bar(DifferenceDensityDf, title="Difference in density", x=DifferenceTotalDf.index, y=DENSITY_INDEX, height=400).show()
+        fig2 = px.bar(DifferenceDensityDf, title="Difference in density", x=DifferenceTotalDf.index, y=DENSITY_INDEX, height=400);
         annotate(ax, 0)
 
         print("Total gemeentes:" + str(count))
@@ -153,8 +152,16 @@ class CoronaGraph:
 
         county_change_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
 
-        fig = px.bar(county_change_df, x="day", y=INDEXED_SUM, height=400)
-        fig.update_traces(marker_color='red')
+        fig1 = px.bar(county_change_df, x="day", y=INDEXED_SUM)
+        fig1 = fig1.update_traces(marker_color='red')
+
+        trace1 = fig1['data'][0]
+        trace2 = fig2['data'][0]
+
+        fig = make_subplots(rows=1, cols=2)
+        fig.add_trace(trace1, row=1, col=1)
+        fig.add_trace(trace2, row=1, col=2)
+
         fig.show()
 
         maxindex = DifferenceDf.loc[DifferenceDf[TOTAL_INDEX].idxmax()]
