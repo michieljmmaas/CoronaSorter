@@ -107,33 +107,27 @@ class CoronaGraph:
         count = len(self.StatsDf.index)
         top_10 = math.ceil(count / 10)
 
-        # fig = plt.figure()
-
-        # ax = fig.add_subplot(221)
         AantalDF, total_index_county, total_value_county = getTop10AndIndex(self.StatsDf, top_10, TOTAL_INDEX, COUNTY_NAME)
-        ax = AantalDF.plot(title="Total", kind="bar", y=TOTAL_INDEX, color='red')
-        annotate(ax, 0)
+        total_fig = px.bar(AantalDF, x=AantalDF.index, y=TOTAL_INDEX)
+        total_fig = total_fig.update_traces(marker_color='red')
+        total_trace = total_fig['data'][0]
 
-        # fig = go.Figure(go.Bar(AantalDF))
-        # fig.update_layout(title_text='hello world')
-        # pio.write_html(fig, file='hello_world.html', auto_open=True)
-
-        # ax = fig.add_subplot(222)
         DensityDF, density_index_county, density_value_county = getTop10AndIndex(self.StatsDf, top_10, DENSITY_INDEX, COUNTY_NAME)
-        ax = DensityDF.plot(title="Density", kind="bar", y=DENSITY_INDEX, color='green')
-        annotate(ax, 0)
+        denisty_fig = px.bar(DensityDF, x=DensityDF.index, y=DENSITY_INDEX)
+        denisty_fig = denisty_fig.update_traces(marker_color='blue')
+        denisty_trace = denisty_fig['data'][0]
 
         DifferenceDf = getDifferenceFromYesterday(self.files)
 
-        # ax = fig.add_subplot(223)
         DifferenceTotalDf, difference_total_index_county, differrence_total_county = getTop10AndIndex(DifferenceDf, top_10, TOTAL_INDEX, COUNTY_NAME)
-        ax = DifferenceTotalDf.plot(title="Difference in total", kind="bar", y=TOTAL_INDEX, color='blue')
-        annotate(ax, 0)
-        # ax = fig.add_subplot(224)
+        total_change_fig = px.bar(DifferenceTotalDf, x=DifferenceTotalDf.index, y=TOTAL_INDEX)
+        total_change_fig = total_change_fig.update_traces(marker_color='green')
+        total_change_trace = total_change_fig['data'][0]
+
         DifferenceDensityDf, difference_density_index_county, differrence_density_county = getTop10AndIndex(DifferenceDf, top_10, DENSITY_INDEX, COUNTY_NAME)
-        ax = DifferenceDensityDf.plot(title="Difference in density", kind="bar", y=DENSITY_INDEX, color='yellow')
-        fig2 = px.bar(DifferenceDensityDf, title="Difference in density", x=DifferenceTotalDf.index, y=DENSITY_INDEX, height=400);
-        annotate(ax, 0)
+        density_change_fig = px.bar(DifferenceDensityDf, x=DifferenceTotalDf.index, y=DENSITY_INDEX)
+        density_change_fig = density_change_fig.update_traces(marker_color='yellow')
+        density_change_trace = density_change_fig['data'][0]
 
         print("Total gemeentes:" + str(count))
         printInfo("Total", COUNTY_NAME, total_value_county, total_index_county, count)
@@ -143,24 +137,25 @@ class CoronaGraph:
 
         TOTAL_CASES = self.StatsDf[TOTAL_INDEX].sum()
         print("Total Cases: " + str(TOTAL_CASES))
-        # ax.axis('scaled')
 
         county_change_df = getChangeOverTime(COUNTY_NAME, self.files)
-        county_change_index = DENSITY_INDEX
-        ax = county_change_df.plot(title=COUNTY_NAME + " - " + county_change_index, kind="bar", x="day", y=county_change_index)
-        annotate(ax, 0)
+        county_change_index = TOTAL_INDEX
+        county_change_fig = px.bar(county_change_df, x="day", y=county_change_index)
+        county_change_fig = county_change_fig.update_traces(marker_color='purple')
+        county_change_trace = county_change_fig['data'][0]
 
-        county_change_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
+        total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
+        total_change_indexed_fig = px.bar(total_change_indexed_df, x="day", y=INDEXED_SUM)
+        total_change_indexed_fig = total_change_indexed_fig.update_traces(marker_color='orange')
+        total_change_indexed_trace = total_change_indexed_fig['data'][0]
 
-        fig1 = px.bar(county_change_df, x="day", y=INDEXED_SUM)
-        fig1 = fig1.update_traces(marker_color='red')
-
-        trace1 = fig1['data'][0]
-        trace2 = fig2['data'][0]
-
-        fig = make_subplots(rows=1, cols=2)
-        fig.add_trace(trace1, row=1, col=1)
-        fig.add_trace(trace2, row=1, col=2)
+        fig = make_subplots(rows=3, cols=2, subplot_titles=("Total", "Density", "Total Change", "Density Change", "Total Cases in " + COUNTY_NAME, "Total Cases Indexed"))
+        fig.add_trace(total_trace, row=1, col=1)
+        fig.add_trace(denisty_trace, row=1, col=2)
+        fig.add_trace(total_change_trace, row=2, col=1)
+        fig.add_trace(density_change_trace, row=2, col=2)
+        fig.add_trace(county_change_trace, row=3, col=1)
+        fig.add_trace(total_change_indexed_trace, row=3, col=2)
 
         fig.show()
 
