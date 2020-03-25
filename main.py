@@ -103,7 +103,11 @@ class CoronaGraph:
         DELFT = "Delft"
         COUNTY_NAME = DELFT
         count = len(self.StatsDf.index)
-        top_10 = math.ceil(count / 10)
+        top_10 = math.ceil(count / 2)
+        # top_10 = count
+        DIFFEREMCE_SINCE = 1
+        NORMALIZED = False
+        CHANGE_INDEX = "sum"
 
         AantalDF, total_index_county, total_value_county = getTop10AndIndex(self.StatsDf, top_10, TOTAL_INDEX, COUNTY_NAME)
         total_fig = px.bar(AantalDF, x=AantalDF.index, y=TOTAL_INDEX)
@@ -115,7 +119,7 @@ class CoronaGraph:
         denisty_fig = denisty_fig.update_traces(marker_color='blue')
         denisty_trace = denisty_fig['data'][0]
 
-        DifferenceDf, earliest_date = getDifferenceFromNumerOfDaysBack(self.files, -1)
+        DifferenceDf, earliest_date = getDifferenceFromNumerOfDaysBack(self.files, DIFFEREMCE_SINCE)
 
         DifferenceTotalDf, difference_total_index_county, differrence_total_county = getTop10AndIndex(DifferenceDf, top_10, TOTAL_INDEX, COUNTY_NAME)
         total_change_fig = px.bar(DifferenceTotalDf, x=DifferenceTotalDf.index, y=TOTAL_INDEX)
@@ -141,8 +145,12 @@ class CoronaGraph:
         county_change_fig = county_change_fig.update_traces(marker_color='purple')
         county_change_trace = county_change_fig['data'][0]
 
-        total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
-        total_change_indexed_fig = px.bar(total_change_indexed_df, x="day", y=INDEXED_SUM)
+        total_change_indexed_df = county_change_df
+        if NORMALIZED:
+            CHANGE_INDEX = INDEXED_SUM
+            total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
+
+        total_change_indexed_fig = px.bar(total_change_indexed_df, x="day", y=CHANGE_INDEX)
         total_change_indexed_fig = total_change_indexed_fig.update_traces(marker_color='orange')
         total_change_indexed_trace = total_change_indexed_fig['data'][0]
 
@@ -157,8 +165,9 @@ class CoronaGraph:
         fig.add_trace(county_change_trace, row=3, col=1)
         fig.add_trace(total_change_indexed_trace, row=3, col=2)
 
+        fig.update_layout(title_text="Total Cases: " + str(TOTAL_CASES))
         fig.show()
-        plt.tight_layout()  # plt.show()
+        plt.tight_layout()
 
         # TODO check maken op grootste verschil  # TODO get change of index
 
