@@ -86,14 +86,6 @@ def getStringOfDate(date):
     difference = datetime.datetime.now() - date
     return datestring + " - " + str(difference.days + 1) + " days"
 
-
-# def HighLightCounty(df, county_name):
-#     color = np.array(['rgb(255,255,255)'] * df.shape[0])
-#     color[df < 20] = 'rgb(204,204, 205)'
-#     color[y >= 20] = 'rgb(130, 0, 0)'
-#
-#     data = [dict(type='bar', y=y, marker=dict(color=color.tolist()))]
-
 class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
@@ -115,7 +107,7 @@ class CoronaGraph:
         count = len(self.StatsDf.index)
         top_10 = math.ceil(count / 2)
         # top_10 = count
-        DIFFEREMCE_SINCE = 1
+        DIFFEREMCE_SINCE = -1
         SUM_INDEX = "sum"
         DAY_INDEX = "day"
         DATA_INDEX = "data"
