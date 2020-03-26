@@ -86,6 +86,7 @@ def getStringOfDate(date):
     difference = datetime.datetime.now() - date
     return datestring + " - " + str(difference.days + 1) + " days"
 
+
 class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
@@ -177,7 +178,7 @@ class CoronaGraph:
         fig.show()
         plt.tight_layout()
 
-        # TODO check maken op grootste verschil  # TODO get change of index
+        # TODO check maken op grootste verschil    # TODO get change of index    # TODO pullt zelf data  # TODO Doubling Time
 
 
 if __name__ == '__main__':
