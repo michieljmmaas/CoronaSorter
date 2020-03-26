@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import cufflinks as cf
+import numpy as np
 import plotly.express as px
 from plotly.subplots import make_subplots
 import datetime
@@ -32,11 +33,13 @@ def printInfo(pretext, country_name, value, index, total):
     print(pretext + " " + country_name + ": " + str(value) + " - " + getIndexPointOfOrder(total, index) + "%")
 
 
-def getTop10AndIndex(df, amount, index, county_name):
+def getTop10AndIndex(df, amount, index, county_name, low_color, country_color, color_index):
     df.sort_values(index, ascending=False, inplace=True)
     index_county = df.index.get_loc(county_name)
     value_county = df.at[county_name, index]
     largest = df.nlargest(amount, index)
+    largest[color_index] = low_color
+    largest[color_index][county_name] = country_color
     return largest, index_county, value_county
 
 
@@ -69,7 +72,7 @@ def trimFileNameToDate(file_name):
 
 
 def normalizeOnKey(df, new_key, old_key):
-    df[new_key] = df[old_key] / df[old_key].max()
+    df[new_key] = round(df[old_key] / df[old_key].max(), 3)
     return df
 
 
@@ -83,6 +86,13 @@ def getStringOfDate(date):
     difference = datetime.datetime.now() - date
     return datestring + " - " + str(difference.days + 1) + " days"
 
+
+# def HighLightCounty(df, county_name):
+#     color = np.array(['rgb(255,255,255)'] * df.shape[0])
+#     color[df < 20] = 'rgb(204,204, 205)'
+#     color[y >= 20] = 'rgb(130, 0, 0)'
+#
+#     data = [dict(type='bar', y=y, marker=dict(color=color.tolist()))]
 
 class CoronaGraph:
     def __init__(self):
@@ -106,30 +116,40 @@ class CoronaGraph:
         top_10 = math.ceil(count / 2)
         # top_10 = count
         DIFFEREMCE_SINCE = 1
-        NORMALIZED = False
-        CHANGE_INDEX = "sum"
+        SUM_INDEX = "sum"
+        DAY_INDEX = "day"
+        DATA_INDEX = "data"
+        COLOR_INDEX = "color"
 
-        AantalDF, total_index_county, total_value_county = getTop10AndIndex(self.StatsDf, top_10, TOTAL_INDEX, COUNTY_NAME)
+        low_color = "SALMON"
+        county_color = "FIREBRICK"
+        AantalDF, total_index_county, total_value_county = getTop10AndIndex(self.StatsDf, top_10, TOTAL_INDEX, COUNTY_NAME, low_color, county_color, COLOR_INDEX)
         total_fig = px.bar(AantalDF, x=AantalDF.index, y=TOTAL_INDEX)
-        total_fig = total_fig.update_traces(marker_color='red')
-        total_trace = total_fig['data'][0]
+        total_fig = total_fig.update_traces(marker_color=AantalDF[COLOR_INDEX])
+        total_trace = total_fig[DATA_INDEX][0]
 
-        DensityDF, density_index_county, density_value_county = getTop10AndIndex(self.StatsDf, top_10, DENSITY_INDEX, COUNTY_NAME)
+        low_color = "POWDERBLUE"
+        county_color = "DODGERBLUE"
+        DensityDF, density_index_county, density_value_county = getTop10AndIndex(self.StatsDf, top_10, DENSITY_INDEX, COUNTY_NAME, low_color, county_color, COLOR_INDEX)
         denisty_fig = px.bar(DensityDF, x=DensityDF.index, y=DENSITY_INDEX)
-        denisty_fig = denisty_fig.update_traces(marker_color='blue')
-        denisty_trace = denisty_fig['data'][0]
+        denisty_fig = denisty_fig.update_traces(marker_color=DensityDF[COLOR_INDEX])
+        denisty_trace = denisty_fig[DATA_INDEX][0]
 
         DifferenceDf, earliest_date = getDifferenceFromNumerOfDaysBack(self.files, DIFFEREMCE_SINCE)
 
-        DifferenceTotalDf, difference_total_index_county, differrence_total_county = getTop10AndIndex(DifferenceDf, top_10, TOTAL_INDEX, COUNTY_NAME)
+        low_color = "PALEGREEN"
+        county_color = "DARKGREEN"
+        DifferenceTotalDf, difference_total_index_county, differrence_total_county = getTop10AndIndex(DifferenceDf, top_10, TOTAL_INDEX, COUNTY_NAME, low_color, county_color, COLOR_INDEX)
         total_change_fig = px.bar(DifferenceTotalDf, x=DifferenceTotalDf.index, y=TOTAL_INDEX)
-        total_change_fig = total_change_fig.update_traces(marker_color='green')
-        total_change_trace = total_change_fig['data'][0]
+        total_change_fig = total_change_fig.update_traces(marker_color=DifferenceTotalDf[COLOR_INDEX])
+        total_change_trace = total_change_fig[DATA_INDEX][0]
 
-        DifferenceDensityDf, difference_density_index_county, differrence_density_county = getTop10AndIndex(DifferenceDf, top_10, DENSITY_INDEX, COUNTY_NAME)
+        low_color = "LEMONCHIFFON"
+        county_color = "GOLD"
+        DifferenceDensityDf, difference_density_index_county, differrence_density_county = getTop10AndIndex(DifferenceDf, top_10, DENSITY_INDEX, COUNTY_NAME, low_color, county_color, COLOR_INDEX)
         density_change_fig = px.bar(DifferenceDensityDf, x=DifferenceDensityDf.index, y=DENSITY_INDEX)
-        density_change_fig = density_change_fig.update_traces(marker_color='yellow')
-        density_change_trace = density_change_fig['data'][0]
+        density_change_fig = density_change_fig.update_traces(marker_color=DifferenceDensityDf[COLOR_INDEX])
+        density_change_trace = density_change_fig[DATA_INDEX][0]
 
         printInfo("Total", COUNTY_NAME, total_value_county, total_index_county, count)
         printInfo("Density", COUNTY_NAME, density_value_county, density_index_county, count)
@@ -141,18 +161,14 @@ class CoronaGraph:
 
         county_change_df = getChangeOverTime(COUNTY_NAME, self.files)
         county_change_index = TOTAL_INDEX
-        county_change_fig = px.bar(county_change_df, x="day", y=county_change_index)
-        county_change_fig = county_change_fig.update_traces(marker_color='purple')
-        county_change_trace = county_change_fig['data'][0]
+        county_change_fig = px.bar(county_change_df, x=DAY_INDEX, y=county_change_index)
+        county_change_fig = county_change_fig.update_traces(marker_color="REBECCAPURPLE")
+        county_change_trace = county_change_fig[DATA_INDEX][0]
 
-        total_change_indexed_df = county_change_df
-        if NORMALIZED:
-            CHANGE_INDEX = INDEXED_SUM
-            total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, "sum")
-
-        total_change_indexed_fig = px.bar(total_change_indexed_df, x="day", y=CHANGE_INDEX)
-        total_change_indexed_fig = total_change_indexed_fig.update_traces(marker_color='orange')
-        total_change_indexed_trace = total_change_indexed_fig['data'][0]
+        total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, SUM_INDEX)
+        total_change_indexed_fig = px.bar(total_change_indexed_df, x=DAY_INDEX, y=SUM_INDEX, hover_data=[INDEXED_SUM])
+        total_change_indexed_fig = total_change_indexed_fig.update_traces(marker_color="DARKORANGE")
+        total_change_indexed_trace = total_change_indexed_fig[DATA_INDEX][0]
 
         date_string = getStringOfDate(earliest_date)
 
