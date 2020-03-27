@@ -8,6 +8,8 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import datetime
 
+from RequestOnlineData import GetDataFromOnline
+
 
 def getIndexPointOfOrder(total, index):
     percentage_string = str(index / total * 100)
@@ -90,6 +92,8 @@ def getStringOfDate(date):
 class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
+        self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        GetDataFromOnline(self.files)
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
         self.corona_scv_file = self.files[-1]
         self.StatsDf = getDFFromFile(self.corona_scv_file)
