@@ -13,7 +13,7 @@ def GetDataFromOnline(files):
     if do_not_have_data:
         csv_data = ParseRequestToCsvData(SiteContents)
         dataframe = ReadInDataframe(csv_data)
-        dataframe.to_csv(date_on_page_as_file_string)
+        dataframe.to_csv(date_on_page_as_file_string, index=True)
 
 
 def checkIfHaveDate(date_on_page, files):
@@ -25,9 +25,10 @@ def ReadInDataframe(csv_string):
     dataframe = pd.read_csv(StringData, sep=";")
     dataframe = dataframe.drop(["Gemnr", "BevAant"], axis=1)
     dataframe = dataframe.drop([0])
+    dataframe = dataframe.sort_values(by=['Gemeente'])
+    dataframe = dataframe.reset_index(drop=True)
     dataframe = dataframe.rename(columns={'Gemeente': 'Category'})
     dataframe = dataframe[['Category', 'Aantal per 100.000 inwoners', 'Aantal']]
-    dataframe = dataframe.set_index('Category')
     return dataframe
 
 
@@ -76,4 +77,5 @@ def ParseRequestToCsvData(html_text):
     soup = BeautifulSoup(html_text, features="html.parser")
     div = soup.find('div', id='csvData')
     to_string = str(div)
+    to_string = to_string.replace('s-Gravenhage', '\'s-Gravenhage')
     return RemoveTagsFromHtml(to_string, "csvData")

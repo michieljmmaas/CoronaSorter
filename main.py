@@ -9,6 +9,7 @@ from plotly.subplots import make_subplots
 import datetime
 
 from RequestOnlineData import GetDataFromOnline
+from redircsv import rereadFiles
 
 
 def getIndexPointOfOrder(total, index):
@@ -17,7 +18,7 @@ def getIndexPointOfOrder(total, index):
 
 
 def getDFFromFile(filename):
-    return pd.read_csv(filename, sep=";", index_col=0)
+    return pd.read_csv(filename)
 
 
 def getDifferenceFromNumerOfDaysBack(files, number_of_days_back):
@@ -95,6 +96,7 @@ class CoronaGraph:
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
         GetDataFromOnline(self.files)
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        # rereadFiles(self.files)
         self.corona_scv_file = self.files[-1]
         self.StatsDf = getDFFromFile(self.corona_scv_file)
         self.DrawMatplot()
