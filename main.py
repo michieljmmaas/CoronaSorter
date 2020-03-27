@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import cufflinks as cf
-import numpy as np
 import plotly.express as px
 from plotly.subplots import make_subplots
 import datetime
@@ -18,7 +17,7 @@ def getIndexPointOfOrder(total, index):
 
 
 def getDFFromFile(filename):
-    return pd.read_csv(filename)
+    return pd.read_csv(filename, index_col="Category")
 
 
 def getDifferenceFromNumerOfDaysBack(files, number_of_days_back):
@@ -27,8 +26,10 @@ def getDifferenceFromNumerOfDaysBack(files, number_of_days_back):
         previous_index = -(1 + number_of_days_back)
     today_file = files[-1]
     todayDF = getDFFromFile(today_file)
+    print(todayDF)
     previous_file = files[previous_index]
     yesterdayDF = getDFFromFile(previous_file)
+    print(yesterdayDF)
     return todayDF.subtract(yesterdayDF), trimFileNameToDate(previous_file)
 
 
@@ -56,14 +57,14 @@ def getChangeOverTime(county_name, files):
     df = pd.DataFrame()
     for file in files:
         dayDF = getDFFromFile(file)
-        dayDF["day"] = trimFileNameToDate(file)
-        totalSum = dayDF["Aantal"].sum()
+        dayDF['day'] = trimFileNameToDate(file)
+        totalSum = dayDF['Aantal'].sum()
         county_row = dayDF.loc[county_name]
-        county_row["sum"] = totalSum
+        county_row['sum'] = totalSum
         df = df.append(county_row)
-    df.sort_values("day", ascending=True, inplace=True)
+    df.sort_values('day', ascending=True, inplace=True)
     df.reset_index()
-    df.set_index("day")
+    df.set_index('day')
     return df
 
 
@@ -94,9 +95,9 @@ class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
-        GetDataFromOnline(self.files)
-        self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        # GetDataFromOnline(self.files)
         # rereadFiles(self.files)
+        # self.files = getAllFilesInDirectory(self.corona_scv_dir)
         self.corona_scv_file = self.files[-1]
         self.StatsDf = getDFFromFile(self.corona_scv_file)
         self.DrawMatplot()
@@ -105,20 +106,20 @@ class CoronaGraph:
         cf.go_offline()
 
         pd.options.mode.chained_assignment = None
-        TOTAL_INDEX = "Aantal"
-        INDEXED_SUM = "indexed_sum"
-        DENSITY_INDEX = "Aantal per 100.000 inwoners"
-        ARNHEM = "Arnhem"
-        DELFT = "Delft"
+        TOTAL_INDEX = 'Aantal'
+        INDEXED_SUM = 'indexed_sum'
+        DENSITY_INDEX = 'Aantal per 100.000 inwoners'
+        ARNHEM = 'Arnhem'
+        DELFT = 'Delft'
         COUNTY_NAME = DELFT
         count = len(self.StatsDf.index)
         top_10 = math.ceil(count / 2)
         # top_10 = count
         DIFFEREMCE_SINCE = -1
-        SUM_INDEX = "sum"
-        DAY_INDEX = "day"
-        DATA_INDEX = "data"
-        COLOR_INDEX = "color"
+        SUM_INDEX = 'sum'
+        DAY_INDEX = 'day'
+        DATA_INDEX = 'data'
+        COLOR_INDEX = 'color'
 
         low_color = "SALMON"
         county_color = "FIREBRICK"
