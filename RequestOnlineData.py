@@ -13,7 +13,7 @@ def GetDataFromOnline(files):
     if do_not_have_data:
         csv_data = ParseRequestToCsvData(SiteContents)
         dataframe = ReadInDataframe(csv_data)
-        dataframe.to_csv(date_on_page_as_file_string, index=True)
+        dataframe.to_csv(date_on_page_as_file_string, index=False)
 
 
 def checkIfHaveDate(date_on_page, files):

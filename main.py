@@ -26,10 +26,8 @@ def getDifferenceFromNumerOfDaysBack(files, number_of_days_back):
         previous_index = -(1 + number_of_days_back)
     today_file = files[-1]
     todayDF = getDFFromFile(today_file)
-    print(todayDF)
     previous_file = files[previous_index]
     yesterdayDF = getDFFromFile(previous_file)
-    print(yesterdayDF)
     return todayDF.subtract(yesterdayDF), trimFileNameToDate(previous_file)
 
 
@@ -95,9 +93,8 @@ class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
-        # GetDataFromOnline(self.files)
-        # rereadFiles(self.files)
-        # self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        GetDataFromOnline(self.files)
+        self.files = getAllFilesInDirectory(self.corona_scv_dir)
         self.corona_scv_file = self.files[-1]
         self.StatsDf = getDFFromFile(self.corona_scv_file)
         self.DrawMatplot()
