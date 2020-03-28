@@ -112,7 +112,7 @@ class CoronaGraph:
         count = len(self.StatsDf.index)
         top_10 = math.ceil(count / 2)
         # top_10 = count
-        DIFFEREMCE_SINCE = -1
+        DIFFEREMCE_SINCE = 1
         SUM_INDEX = 'sum'
         DAY_INDEX = 'day'
         DATA_INDEX = 'data'
