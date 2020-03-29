@@ -108,6 +108,7 @@ class CoronaGraph:
         DENSITY_INDEX = 'Aantal per 100.000 inwoners'
         ARNHEM = 'Arnhem'
         DELFT = 'Delft'
+        UTRECHT = 'Utrecht'
         COUNTY_NAME = DELFT
         count = len(self.StatsDf.index)
         top_10 = math.ceil(count / 2)
