@@ -75,6 +75,8 @@ def trimFileNameToDate(file_name):
 
 def normalizeOnKey(df, new_key, old_key):
     df[new_key] = round(df[old_key] / df[old_key].max(), 3)
+    df["total_increase"] = df['sum'].diff()
+    df["total_increase_index"] = round(df["total_increase"] / df["total_increase"].max(), 3)
     return df
 
 
@@ -118,6 +120,8 @@ class CoronaGraph:
         DAY_INDEX = 'day'
         DATA_INDEX = 'data'
         COLOR_INDEX = 'color'
+        DAILY_INCREASE_INDEX = "total_increase"
+        DAILY_INCREASE_NORMALIZED_INDEX = "total_increase_index"
 
         low_color = "SALMON"
         county_color = "FIREBRICK"
@@ -164,20 +168,29 @@ class CoronaGraph:
         county_change_trace = county_change_fig[DATA_INDEX][0]
 
         total_change_indexed_df = normalizeOnKey(county_change_df, INDEXED_SUM, SUM_INDEX)
+
         total_change_indexed_fig = px.bar(total_change_indexed_df, x=DAY_INDEX, y=SUM_INDEX, hover_data=[INDEXED_SUM])
         total_change_indexed_fig = total_change_indexed_fig.update_traces(marker_color="DARKORANGE")
         total_change_indexed_trace = total_change_indexed_fig[DATA_INDEX][0]
 
+        daily_increase_fig = px.line(total_change_indexed_df, x=DAY_INDEX, y=DAILY_INCREASE_INDEX, hover_data=[DAILY_INCREASE_NORMALIZED_INDEX], line_shape='spline')
+        daily_increase_fig = daily_increase_fig.update_traces(line=dict(color="CHOCOLATE"))
+        daily_increase_fig_trace = daily_increase_fig[DATA_INDEX][0]
+
         date_string = getStringOfDate(earliest_date)
 
-        fig = make_subplots(rows=3, cols=2,
-                            subplot_titles=("Total", "Density", "Total Change since: " + date_string, "Density Change since: " + date_string, "Total Cases in " + COUNTY_NAME, "Total Cases Indexed"))
+        sub_plot_titles = ["Total", "Density", "Total Change since: " + date_string, "Density Change since: " + date_string, "Total Cases in " + COUNTY_NAME, "Total Cases Indexed"]
+
+        fig = make_subplots(rows=3, cols=2, subplot_titles=sub_plot_titles,
+                            specs=[[{"secondary_y": False}, {"secondary_y": False}], [{"secondary_y": False}, {"secondary_y": False}], [{"secondary_y": False}, {"secondary_y": True}]])
+
         fig.add_trace(total_trace, row=1, col=1)
         fig.add_trace(denisty_trace, row=1, col=2)
         fig.add_trace(total_change_trace, row=2, col=1)
         fig.add_trace(density_change_trace, row=2, col=2)
         fig.add_trace(county_change_trace, row=3, col=1)
-        fig.add_trace(total_change_indexed_trace, row=3, col=2)
+        fig.add_trace(total_change_indexed_trace, row=3, col=2, secondary_y=False)
+        fig.add_trace(daily_increase_fig_trace, row=3, col=2, secondary_y=True)
 
         fig.update_layout(title_text="Total Cases: " + str(TOTAL_CASES))
         fig.show()
