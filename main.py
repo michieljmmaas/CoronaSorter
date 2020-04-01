@@ -95,7 +95,7 @@ class CoronaGraph:
     def __init__(self):
         self.corona_scv_dir = "input/"
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
-        GetDataFromOnline(self.files)
+        # GetDataFromOnline(self.files)
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
         self.corona_scv_file = self.files[-1]
         self.StatsDf = getDFFromFile(self.corona_scv_file)
@@ -196,7 +196,7 @@ class CoronaGraph:
         fig.show()
         plt.tight_layout()
 
-        # TODO check maken op grootste verschil    # TODO get change of index    # TODO pullt zelf data  # TODO Doubling Time
+        # TODO check maken op grootste verschil    # TODO get change of index  # TODO Doubling Time
 
 
 if __name__ == '__main__':
