@@ -197,7 +197,7 @@ class CoronaGraph:
         fig.show()
         plt.tight_layout()
 
-        # TODO check maken op grootste verschil    # TODO get change of index  # TODO Doubling Time
+        # TODO check maken op grootste verschil # TODO get change of index  # TODO Doubling Time  # TODO Total Cases terug toevoegen
 
 
 if __name__ == '__main__':
