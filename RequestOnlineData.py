@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 def GetDataFromOnline(files):
     SiteContents = RequestSiteData()
     date_on_page_as_file_string = GetDateFromPage(SiteContents)
-    print(date_on_page_as_file_string)
     do_not_have_data = checkIfHaveDate(date_on_page_as_file_string, files)
     if do_not_have_data:
         csv_data = ParseRequestToCsvData(SiteContents)
