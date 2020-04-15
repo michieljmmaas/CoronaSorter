@@ -5,6 +5,8 @@ import json
 
 from bs4 import BeautifulSoup
 
+from redircsv import refFile
+
 
 def GetDataFromOnline(files):
     SiteContents = RequestSiteData()
@@ -23,13 +25,15 @@ def checkIfHaveDate(date_on_page, files):
 def ReadInDataframe(csv_string):
     StringData = StringIO(csv_string)
     dataframe = pd.read_csv(StringData, sep=";")
-    dataframe = dataframe.drop(["Gemnr", "BevAant"], axis=1)
+    dataframe = dataframe.drop(columns=["Gemnr", "Meldingen"], axis=1)
     dataframe = dataframe.drop([0])
     dataframe = dataframe.sort_values(by=['Gemeente'])
     dataframe = dataframe.reset_index(drop=True)
     dataframe = dataframe.rename(columns={'Gemeente': 'Category'})
-    dataframe = dataframe[['Category', 'Aantal per 100.000 inwoners', 'Aantal']]
-    return dataframe
+    edited_dataframe = refFile(dataframe)
+    print(dataframe)
+    # dataframe = dataframe[['Aantal per 100.000 inwoners', 'Aantal']]
+    return edited_dataframe
 
 
 def GetDateFromPage(page_content):
@@ -78,4 +82,5 @@ def ParseRequestToCsvData(html_text):
     div = soup.find('div', id='csvData')
     to_string = str(div)
     to_string = to_string.replace('s-Gravenhage', '\'s-Gravenhage')
+    to_string = to_string.replace('<div data-columns="Zkh opname per 100.000;Zkh opname;Meldingen per 100.000;Meldingen" data-value="Zkh opname per 100.000" id="csvData">', '')
     return RemoveTagsFromHtml(to_string, "csvData")
