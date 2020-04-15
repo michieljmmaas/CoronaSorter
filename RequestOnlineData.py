@@ -31,7 +31,7 @@ def ReadInDataframe(csv_string):
     dataframe = dataframe.reset_index(drop=True)
     dataframe = dataframe.rename(columns={'Gemeente': 'Category'})
     edited_dataframe = refFile(dataframe)
-    print(dataframe)
+    # print(dataframe)
     # dataframe = dataframe[['Aantal per 100.000 inwoners', 'Aantal']]
     return edited_dataframe
 
