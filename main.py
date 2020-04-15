@@ -93,14 +93,16 @@ def getStringOfDate(date):
 
 class CoronaGraph:
     def __init__(self):
-        self.corona_scv_dir = "input/"
+        self.corona_scv_dir = "input_new/"
         self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        rereadFiles(self.files)
+        # self.files = getAllFilesInDirectory(self.corona_scv_dir)
         # GetDataFromOnline(self.files)
         # rereadFiles(self.files)
-        self.files = getAllFilesInDirectory(self.corona_scv_dir)
-        self.corona_scv_file = self.files[-1]
-        self.StatsDf = getDFFromFile(self.corona_scv_file)
-        self.DrawMatplot()
+        # self.files = getAllFilesInDirectory(self.corona_scv_dir)
+        # self.corona_scv_file = self.files[-1]
+        # self.StatsDf = getDFFromFile(self.corona_scv_file)
+        # self.DrawMatplot()
 
     def DrawMatplot(self):
         cf.go_offline()
