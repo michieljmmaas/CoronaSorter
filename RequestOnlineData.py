@@ -81,6 +81,7 @@ def ParseRequestToCsvData(html_text):
     soup = BeautifulSoup(html_text, features="html.parser")
     div = soup.find('div', id='csvData')
     to_string = str(div)
+    remove_string = '<div data-columns="Meldingen;Meldingen per 100.000;Zkh opname;Zkh opname per 100.000;Overleden;Overleden per 100.000" data-value="Zkh opname per 100.000" id="csvData">'
     to_string = to_string.replace('s-Gravenhage', '\'s-Gravenhage')
-    to_string = to_string.replace('<div data-columns="Zkh opname per 100.000;Zkh opname;Meldingen per 100.000;Meldingen" data-value="Zkh opname per 100.000" id="csvData">', '')
+    to_string = to_string.replace(remove_string, '')
     return RemoveTagsFromHtml(to_string, "csvData")

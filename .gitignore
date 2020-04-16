@@ -1,2 +1,5 @@
 /.plotly/
 /pythonw/
+/CoronaSorter.egg-info/
+/dist/
+/build/
